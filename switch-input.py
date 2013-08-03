@@ -42,7 +42,7 @@ def change_input(inp, colour):
 
 def send_message(host, port, message):
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, (UDP_IP, UDP_PORT))
+	sock.sendto(message, (host, port))
 
 if __name__ == '__main__':
-	send_message(config['host'], config['port'], change_input(int(sys.argv[1]), 0x000000))
+	send_message(configuration['host'], configuration['port'], change_input(int(sys.argv[1]), 0x000000))

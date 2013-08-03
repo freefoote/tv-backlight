@@ -44,7 +44,7 @@ configuration = {
     'size_y': 26,
 
     # The number of frames to average together (to stop flashing/flickering)
-    'average_frames': 16,
+    'average_frames': 32,
 
     # How many pixels to probe looking for black bars.
     'black_bar_search_height': 8,
@@ -190,11 +190,11 @@ class ScreenPixel(object):
         if result_key_b not in self.last_values:
             self.last_values[result_key_b] = []
 
-        if len(self.last_values[result_key_r]) >= average_frames:
+        if len(self.last_values[result_key_r]) >= self.average_frames:
             self.last_values[result_key_r] = self.last_values[result_key_r][1:]
-        if len(self.last_values[result_key_g]) >= average_frames:
+        if len(self.last_values[result_key_g]) >= self.average_frames:
             self.last_values[result_key_g] = self.last_values[result_key_g][1:]
-        if len(self.last_values[result_key_b]) >= average_frames:
+        if len(self.last_values[result_key_b]) >= self.average_frames:
             self.last_values[result_key_b] = self.last_values[result_key_b][1:]
 
         self.last_values[result_key_r].append(r)
@@ -294,8 +294,16 @@ while True:
         # print "%d, %d: %X" % (x, y, colour)
         network_message += struct.pack('<I', colour)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(network_message, (configuration['host'], configuration['port']))
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(network_message, (configuration['host'], configuration['port']))
+    except socket.error, ex:
+        # Unable to send. On OSX, this happens as it resumes from
+        # sleep whilst the network comes back.
+        # Wait for a bit and then try again.
+        print str(ex)
+        print "Retrying shortly."
+        time.sleep(2)
 
     # print "Sent %d bytes." % len(network_message)
 

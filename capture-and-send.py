@@ -41,9 +41,17 @@ configuration = {
 	# How many pixels to probe looking for black bars.
 	'black_bar_search_height': 8,
 
+	# The number of frames to consider the black bar height for.
+	# The minimum detected bottom from this length is used.
+	# For example, with this at 1024, if we capture at 50fps, then the black bar mininum
+	# for the last 20 seconds is used. This makes it a little slow
+	# to detect the start of movies, but should allow the detection to work through
+	# the movie better, and also deal with non-black-bar videos as well.
+	'black_bar_candidate_length': 1024,
+
 	# Divide the colours by this number. This is because the LED
 	# strip tends to be super bright, so this crudely dims it down somewhat.
-	'colour_divisor': 2
+	'colour_divisor': 2,
 }
 
 # Load the configuration.
@@ -65,6 +73,10 @@ current_buffer = 0
 composite_alpha = (255 / configuration['average_frames'])
 arduino_pixels = ((configuration['size_x'] * 2) + (configuration['size_y'] * 2)) - 4
 black_bar_probe_points = [0, configuration['size_x'] / 4, configuration['size_x'] / 2, int(configuration['size_x'] * 0.75), configuration['size_x'] - 1]
+black_bar_top_candidates = [0] * configuration['black_bar_candidate_length']
+black_bar_bottom_candidates = [0] * configuration['black_bar_candidate_length']
+black_bar_top_candidate_index = 0
+black_bar_bottom_candidate_index = 0
 
 print "Sending %d pixels each screen." % arduino_pixels
 
@@ -141,6 +153,20 @@ while True:
 
 	black_top = min(*top_candidates)
 	black_bottom = max(*bottom_candidates)
+
+	black_bar_top_candidates[black_bar_top_candidate_index] = black_top
+	black_bar_bottom_candidates[black_bar_bottom_candidate_index] = black_bottom
+
+	black_bar_top_candidate_index += 1
+	if black_bar_top_candidate_index == configuration['black_bar_candidate_length']:
+		black_bar_top_candidate_index = 0
+
+	black_bar_bottom_candidate_index += 1
+	if black_bar_bottom_candidate_index == configuration['black_bar_candidate_length']:
+		black_bar_bottom_candidate_index = 0
+
+	black_top = min(*black_bar_top_candidates)
+	black_bottom = max(*black_bar_bottom_candidates)
 
 	# print "Black bars: %d -> %d" % (black_top, black_bottom)
 

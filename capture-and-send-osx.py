@@ -334,11 +334,11 @@ while True:
     # print "Sent %d bytes." % len(network_message)
 
     end = time.time()
-    print "Total time %0.4fs. Cap %0.4fs, Scale %0.4fs, Search %0.4fs, Proc %0.4fs, FPS %0.2f" % (
-        end - start,
-        captime - start,
-        scaletime - captime,
-        searchtime - scaletime,
-        end - searchtime,
-        1 / (end - start)
-    )
+    # print "Total time %0.4fs. Cap %0.4fs, Scale %0.4fs, Search %0.4fs, Proc %0.4fs, FPS %0.2f" % (
+    #     end - start,
+    #     captime - start,
+    #     scaletime - captime,
+    #     searchtime - scaletime,
+    #     end - searchtime,
+    #     1 / (end - start)
+    # )

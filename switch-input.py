@@ -23,7 +23,7 @@ import json
 import sys
 
 if len(sys.argv) < 2:
-	print "Usage: %s <input number>" % sys.argv[0]
+	print "Usage: %s <input number> [<default colour>]" % sys.argv[0]
 	sys.exit()
 
 # Load the configuration.
@@ -45,4 +45,6 @@ def send_message(host, port, message):
 	sock.sendto(message, (host, port))
 
 if __name__ == '__main__':
-	send_message(configuration['host'], configuration['port'], change_input(int(sys.argv[1]), 0x000000))
+	colour = 0x00000000
+        if len(sys.argv) == 3: colour = int(sys.argv[2], 16)
+	send_message(configuration['host'], configuration['port'], change_input(int(sys.argv[1]), colour))
